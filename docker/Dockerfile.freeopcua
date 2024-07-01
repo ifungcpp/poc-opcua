@@ -1,0 +1,33 @@
+# Use the official Python image as the base
+FROM python:3.11-slim
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Upgrade pip
+RUN pip install --upgrade pip
+
+# Install freeopcua
+RUN pip install asyncua
+
+RUN apt-get update \
+    && apt-get install -y apt-utils \
+    && apt-get install -y ca-certificates \
+    && apt-get install -y iputils-ping \
+    && apt-get install -y net-tools \
+    && apt-get install -y iproute2 \
+    && apt-get install -y procps \
+    && apt-get install -y vim \
+    && apt-get install -y bash \
+    && apt-get install -y curl \
+    && apt-get install -y less \
+    && apt-get install -y lsof \
+    && apt-get install -y telnet \
+    && apt-get clean
+
+# Optionally, you can include a script or set the default command
+# COPY your_script.py /usr/src/app/
+# CMD ["python", "/usr/src/app/your_script.py"]
+
+# Set the default command to run a Python shell
+CMD ["bash"]

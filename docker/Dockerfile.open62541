@@ -1,0 +1,54 @@
+# Use the official Debian 11 image as the base
+FROM debian:11
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential gcc pkg-config cmake python3 \
+    && apt-get install -y libmbedtls-dev \
+    && apt-get install -y git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update \
+    && apt-get install -y apt-utils \
+    && apt-get install -y ca-certificates \
+    && apt-get install -y iputils-ping \
+    && apt-get install -y dnsutils \
+    && apt-get install -y net-tools \
+    && apt-get install -y iproute2 \
+    && apt-get install -y procps \
+    && apt-get install -y vim \
+    && apt-get install -y bash \
+    && apt-get install -y curl \
+    && apt-get install -y less \
+    && apt-get install -y lsof \
+    && apt-get install -y telnet \
+    && apt-get install -y tcpdump \
+    && apt-get clean
+
+# Set the working directory
+# WORKDIR /opt
+
+# Clone the open62541 repository
+# RUN git clone --branch v1.4.1 https://github.com/open62541/open62541.git
+
+COPY . /opt/open62541
+
+# Create a build directory
+WORKDIR /opt/open62541/build
+
+# Configure and build the open62541 library
+# RUN cmake .. -DUA_ENABLE_AMALGAMATION=ON -DUA_ENABLE_ENCRYPTION=ON && cmake --build
+RUN cmake .. && make install
+
+# The open62541 library and headers will be in the build directory
+# Optionally, you can install the library system-wide by uncommenting the following line:
+# RUN cmake --install .
+
+RUN echo 'alias ll="ls -l"' > ~/.bashrc
+
+# Set the default command to run a shell
+CMD ["bash"]

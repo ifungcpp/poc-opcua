@@ -1,0 +1,20 @@
+FROM registry.gitlab.com/systerel/s2opc/build:1.42
+
+# Copy library
+COPY . /opt/S2OPC
+
+# Create a build directory
+WORKDIR /opt/S2OPC
+
+# Configure and build the library
+RUN bash clean.sh && bash build.sh
+
+WORKDIR /opt/S2OPC/build
+
+RUN make install
+
+# Setup profile
+RUN echo 'alias ll="ls -l"' > ~/.bashrc
+
+# Set the default command to run a shell
+CMD ["bash"]
