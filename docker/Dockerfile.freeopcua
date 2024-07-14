@@ -23,6 +23,7 @@ RUN apt-get update \
     && apt-get install -y less \
     && apt-get install -y lsof \
     && apt-get install -y telnet \
+    && apt-get install -y tcpdump \
     && apt-get clean
 
 # Optionally, you can include a script or set the default command

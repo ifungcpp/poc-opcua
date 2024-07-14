@@ -12,7 +12,7 @@
     </ApplicationDescription>
     <Connections> 
       <!-- Connection serverURL="opc.tcp://poc_freeopcua:4840" id="read" -->
-      <Connection serverURL="opc.tcp://poc_open62541:4840" id="read">
+      <Connection serverURL="opc.tcp://poc_freeopcua:4840" id="read">
         <SecurityPolicy uri="http://opcfoundation.org/UA/SecurityPolicy#None"/>
         <SecurityMode mode="None"/>
         <UserPolicy policyId="open62541-anonymous-policy-none#None" tokenType="anonymous"/>
