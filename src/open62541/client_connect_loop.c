@@ -20,14 +20,17 @@
 
 UA_Boolean running = true;
 
-static void stopHandler(int sign) {
+static void stopHandler(int sign)
+{
     UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_CLIENT, "Received Ctrl-C");
     running = 0;
 }
 
-int main(int argc, const char **argv) {
+int main(int argc, const char **argv)
+{
     const char *endpoint = "opc.tcp://localhost:4840";
-    if (argc > 1) {
+    if (argc > 1)
+    {
         endpoint = argv[1];
     }
     printf("endpoint: %s\n", endpoint);
@@ -46,17 +49,20 @@ int main(int argc, const char **argv) {
     UA_Variant_init(&value);
 
     /* Endless loop reading the server time */
-    while(running) {
+    while (running)
+    {
         /* if already connected, this will return GOOD and do nothing */
         /* if the connection is closed/errored, the connection will be reset and then reconnected */
         /* Alternatively you can also use UA_Client_getState to get the current state */
         UA_StatusCode retval = UA_STATUSCODE_GOOD;
         UA_SessionState ss;
         UA_Client_getState(client, NULL, &ss, NULL);
-        if(ss != UA_SESSIONSTATE_ACTIVATED) {
+        if (ss != UA_SESSIONSTATE_ACTIVATED)
+        {
             retval = UA_Client_connect(client, endpoint);
         }
-        if(retval != UA_STATUSCODE_GOOD) {
+        if (retval != UA_STATUSCODE_GOOD)
+        {
             UA_LOG_ERROR(UA_Log_Stdout, UA_LOGCATEGORY_CLIENT, "Not connected. Retrying to connect in 1 second");
             /* The connect may timeout after 1 second (see above) or it may fail immediately on network errors */
             /* E.g. name resolution errors or unreachable network. Thus there should be a small sleep here */
@@ -66,17 +72,19 @@ int main(int argc, const char **argv) {
 
         /* NodeId of the variable holding the current time */
         const UA_NodeId nodeId =
-                UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_SERVERSTATUS_CURRENTTIME);
+            UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_SERVERSTATUS_CURRENTTIME);
 
         retval = UA_Client_readValueAttribute(client, nodeId, &value);
-        if(retval == UA_STATUSCODE_BADCONNECTIONCLOSED) {
+        if (retval == UA_STATUSCODE_BADCONNECTIONCLOSED)
+        {
             UA_LOG_ERROR(UA_Log_Stdout, UA_LOGCATEGORY_CLIENT,
                          "Connection was closed. Reconnecting ...");
             continue;
         }
-        if(retval == UA_STATUSCODE_GOOD &&
-           UA_Variant_hasScalarType(&value, &UA_TYPES[UA_TYPES_DATETIME])) {
-            UA_DateTime raw_date = *(UA_DateTime *) value.data;
+        if (retval == UA_STATUSCODE_GOOD &&
+            UA_Variant_hasScalarType(&value, &UA_TYPES[UA_TYPES_DATETIME]))
+        {
+            UA_DateTime raw_date = *(UA_DateTime *)value.data;
             UA_DateTimeStruct dts = UA_DateTime_toStruct(raw_date);
             UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
                         "date is: %02u-%02u-%04u %02u:%02u:%02u.%03u",
