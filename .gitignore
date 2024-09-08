@@ -1,5 +1,6 @@
 lib/
 s2opc*logs/
+node_modules/
 *.o
 *.x
 *.pcap
