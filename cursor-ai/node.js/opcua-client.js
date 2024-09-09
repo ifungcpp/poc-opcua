@@ -2,14 +2,19 @@ const opcua = require("node-opcua");
 
 async function main() {
     const client = opcua.OPCUAClient.create({
-        endpoint_must_exist: false
+        endpoint_must_exist: false,
+        connectionStrategy: {
+            initialDelay: 1000,
+            maxRetry: 3,
+        }
     });
 
-    const endpointUrl = "opc.tcp://localhost:4840/myopcua/server/";
+    const endpointUrl = "opc.tcp://0.0.0.0:4840/myopcua/server/";
     const customNamespaceUri = "http://example.com/MyOPCUAServer/";
 
     try {
         // Step 1: Connect to the server
+        console.log("Attempting to connect to server...");
         await client.connect(endpointUrl);
         console.log("Connected to server");
 
@@ -72,7 +77,8 @@ async function main() {
         console.log("Session closed and disconnected");
 
     } catch (err) {
-        console.error("An error occurred:", err);
+        console.error("An error occurred:", err.message);
+        console.error("Stack trace:", err.stack);
     }
 }
 

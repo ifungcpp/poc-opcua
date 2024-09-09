@@ -15,10 +15,10 @@ async def main():
     idx = await server.register_namespace(uri)
 
     # Create a new object
-    myobj = await server.nodes.objects.add_object(idx, "MyObject")
+    myobj = await server.nodes.objects.add_object(f"ns={idx};s=MyObject", "MyObject")
 
     # Create a variable
-    myvar = await myobj.add_variable(idx, "MyVariable", 6.7)
+    myvar = await myobj.add_variable(f"ns={idx};s=MyVariable", "MyVariable", 6.7)
 
     # Set MyVariable to be writable by clients
     await myvar.set_writable()
@@ -28,7 +28,7 @@ async def main():
             await asyncio.sleep(1)
             new_val = await myvar.get_value() + 0.1
             await myvar.write_value(new_val)
-            print(f"MyVariable = {new_val:.3f}")
+            print(f"MyVariable = {new_val:.3f}, {myvar}")
 
 if __name__ == "__main__":
     try:
