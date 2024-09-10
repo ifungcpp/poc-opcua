@@ -31,11 +31,17 @@ async def find_endpoints(server_url):
                     for token in endpoint.UserIdentityTokens:
                         print(f"    - Policy ID: {token.PolicyId}")
                         print(f"      Token Type: {token.TokenType}")
+                        print(f"      Issued Token Type: {token.IssuedTokenType}")
+                        print(f"      Issuer Endpoint URL: {token.IssuerEndpointUrl}")
+                        print(f"      Security Policy URI: {token.SecurityPolicyUri}")
                     
                     print(f"  Server URI: {endpoint.Server.ApplicationUri}")
                     print(f"  Product URI: {endpoint.Server.ProductUri}")
                     print(f"  Application Name: {endpoint.Server.ApplicationName.Text}")
                     print(f"  Application Type: {endpoint.Server.ApplicationType.name}")
+                    print(f"  Gateway Server URI: {endpoint.Server.GatewayServerUri}")
+                    print(f"  Discovery Profile URI: {endpoint.Server.DiscoveryProfileUri}")
+                    print(f"  Discovery URLs: {', '.join(endpoint.Server.DiscoveryUrls)}")
 
         except ua.UaError as e:
             print(f"An error occurred: {e}")
@@ -48,4 +54,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
