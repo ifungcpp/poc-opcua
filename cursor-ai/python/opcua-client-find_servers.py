@@ -21,7 +21,7 @@ async def find_servers(discovery_url):
                 print(f"  Application URI: {server.ApplicationUri}")
                 print(f"  Product URI: {server.ProductUri}")
                 print(f"  Application Name: {server.ApplicationName.Text}")
-                print(f"  Application Type: {server.ApplicationType}")
+                print(f"  Application Type: {server.ApplicationType.name}")
                 print(f"  Gateway Server URI: {server.GatewayServerUri}")
                 print(f"  Discovery Profile URI: {server.DiscoveryProfileUri}")
                 print("  Discovery URLs:")
