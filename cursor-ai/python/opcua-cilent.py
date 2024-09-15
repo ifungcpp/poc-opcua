@@ -27,26 +27,33 @@ async def main():
                 ["0:Objects", f"{nsidx}:MyObject", f"{nsidx}:MyVariable"]
             )
             mystr: Node = client.get_node(ua.NodeId("MyString", nsidx))
+            myint: Node = client.get_node(f"ns={nsidx};s=MyInt")
             myint16: Node = client.get_node(f"ns={nsidx};s=MyInt16")
             myint32: Node = client.get_node(f"ns={nsidx};s=MyInt32")
+            myint64: Node = client.get_node(f"ns={nsidx};s=MyInt64")
+            myfloat: Node = client.get_node(f"ns={nsidx};s=MyFloat")
+            mydouble: Node = client.get_node(f"ns={nsidx};s=MyDouble")
 
             # Read and print the value of MyVariable
-            value: ua.DataValue = await myvar.read_data_value()
-            value_str = await mystr.read_value()
-            value_int16 = await myint16.read_value()
-            value_int32 = await myint32.read_value()
-            print(f"Initial MyVariable value: {value}")
-            print(f"Initial MyString value: '{value_str}'")
-            print(f"Initial MyInt16 value: {value_int16}")
-            print(f"Initial MyInt32 value: {value_int32}")
+            value_var: ua.DataValue = await myvar.read_data_value()
+            value_str = await mystr.read_data_value()
+            value_int = await myint.read_data_value()
+            print(f"\n Initial MyVariable value: {value_var}")
+            print(f"\n Initial MyString value: '{value_str}'")
+            print(f"\n Initial MyInt value: {value_int}")
+            print("\n")
 
             # Create a subscription
             handler = SubscriptionHandler()
             subscription = await client.create_subscription(100, handler)
             await subscription.subscribe_data_change(myvar)
             await subscription.subscribe_data_change(mystr)
+            await subscription.subscribe_data_change(myint)
             await subscription.subscribe_data_change(myint16)
             await subscription.subscribe_data_change(myint32)
+            await subscription.subscribe_data_change(myint64)
+            await subscription.subscribe_data_change(myfloat)
+            await subscription.subscribe_data_change(mydouble)
 
             # Keep the client running to receive updates
             print("Subscribed to data changes. Waiting for 30 seconds...")
