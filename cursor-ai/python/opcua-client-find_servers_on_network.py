@@ -16,10 +16,10 @@ async def find_servers_on_network(discovery_url):
             else:
                 print(f"Found {len(servers)} server(s) on the network:")
                 for server in servers:
-                    print(f"\nServer:")
+                    print("\nServer:")
                     print(f"  Server Name: {server.ServerName}")
                     print(f"  Discovery URL: {server.DiscoveryUrl}")
-                    print(f"  Server Capabilities:")
+                    print("  Server Capabilities:")
                     for capability in server.ServerCapabilities:
                         print(f"    - {capability}")
                     print(f"  Application URI: {server.ApplicationUri}")

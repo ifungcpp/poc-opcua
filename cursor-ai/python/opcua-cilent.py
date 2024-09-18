@@ -2,10 +2,17 @@ import asyncio
 import traceback
 from asyncua import Client, Node, ua
 from asyncua.ua.uaerrors import UaStatusCodeError
+from asyncua.common.subscription import DataChangeNotificationHandler, DataChangeNotif
 
-class SubscriptionHandler:
-    async def datachange_notification(self, node: Node, val, data):
-        print(f"New data change event: {node} = {val}")
+class SubscriptionHandler(DataChangeNotificationHandler):
+    async def datachange_notification(self, node: Node, val, data: DataChangeNotif):
+        print("New data change event:")
+        print(f"  Node: {node}")
+        print(f"  Value: {val}")
+        print(f"  Data Type: {type(val).__name__}")
+        print(f"  Status: {data.monitored_item.Value.StatusCode.name}")
+        print(f"  Source Timestamp: {data.monitored_item.Value.SourceTimestamp}")
+        print(f"  Server Timestamp: {data.monitored_item.Value.ServerTimestamp}")
 
 async def main():
     url = "opc.tcp://localhost:4840/myopcua/server/"
@@ -36,11 +43,17 @@ async def main():
 
             # Read and print the value of MyVariable
             value_var: ua.DataValue = await myvar.read_data_value()
-            value_str = await mystr.read_data_value()
-            value_int = await myint.read_data_value()
+            value_str: ua.DataValue = await mystr.read_data_value()
+            value_int: ua.DataValue = await myint.read_data_value()
             print(f"\n Initial MyVariable value: {value_var}")
             print(f"\n Initial MyString value: '{value_str}'")
             print(f"\n Initial MyInt value: {value_int}")
+            print(f"\n ... MyInt node: {myint}")
+            print(f"\n ... MyInt value: {value_int.Value.Value}")
+            print(f"\n ... MyInt type: {value_int.Value.VariantType.name}")
+            print(f"\n ... MyInt status: {value_int.StatusCode.name}")
+            print(f"\n ... MyInt source timestamp: {value_int.SourceTimestamp}")
+            print(f"\n ... MyInt server timestamp: {value_int.ServerTimestamp}")
             print("\n")
 
             # Create a subscription
