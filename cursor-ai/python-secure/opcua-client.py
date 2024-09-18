@@ -3,8 +3,9 @@ import logging
 from asyncua import Client, ua
 from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
 
-logging.basicConfig(level=logging.INFO)
-_logger = logging.getLogger('asyncua')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.getLogger('asyncua').setLevel(logging.WARNING)
+_logger = logging.getLogger('myclient')
 
 async def main():
     url = "opc.tcp://localhost:4840/freeopcua/server/"
@@ -14,7 +15,7 @@ async def main():
     client = Client(url=url)
 
     _logger.info("Setting security")
-    await client.set_security_string("Basic256Sha256,SignAndEncrypt,example_cert.der,example_private_key.pem")
+    await client.set_security_string("Basic128Rsa15,SignAndEncrypt,example_cert.der,example_private_key.pem")
 
     try:
         async with client:
@@ -29,14 +30,15 @@ async def main():
             value = await var.read_value()
             _logger.info(f"MyVariable value: {value}")
 
-            # Write a new value to MyVariable
-            new_value = 42.0
-            await var.write_value(new_value)
-            _logger.info(f"Wrote new value to MyVariable: {new_value}")
+            if False:
+                # Write a new value to MyVariable
+                new_value = 42.0
+                await var.write_value(new_value)
+                _logger.info(f"Wrote new value to MyVariable: {new_value}")
 
-            # Read the value again to confirm the change
-            value = await var.read_value()
-            _logger.info(f"MyVariable new value: {value}")
+                # Read the value again to confirm the change
+                value = await var.read_value()
+                _logger.info(f"MyVariable new value: {value}")
 
             # Subscribe to changes
             handler = SubscriptionHandler()

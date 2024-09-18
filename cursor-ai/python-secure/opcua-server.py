@@ -5,8 +5,8 @@ from asyncua.crypto.permission_rules import SimpleRoleRuleset
 from asyncua.server.user_managers import CertificateUserManager
 from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
 
-logging.basicConfig(level=logging.INFO)
-_logger = logging.getLogger('asyncua')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+_logger = logging.getLogger('myserver')
 
 async def main():
     # Setup server
@@ -21,8 +21,16 @@ async def main():
     await server.load_private_key("example_private_key.pem")
 
     # Set security policy
-    server.set_security_policy([SecurityPolicyBasic256Sha256],
-                               permission_ruleset=SimpleRoleRuleset())
+    server.set_security_policy([
+        # SecurityPolicyBasic256Sha256,
+        ua.SecurityPolicyType.NoSecurity,
+        ua.SecurityPolicyType.Basic128Rsa15_Sign,
+        ua.SecurityPolicyType.Basic128Rsa15_SignAndEncrypt,
+        # ua.SecurityPolicyType.Basic256_Sign,
+        # ua.SecurityPolicyType.Basic256_SignAndEncrypt,
+        # ua.SecurityPolicyType.Basic256Sha256_Sign,
+        # ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt,
+        ], permission_ruleset=SimpleRoleRuleset())
 
     # Setup user manager
     server.user_manager = CertificateUserManager()
@@ -46,4 +54,8 @@ async def main():
             await myvar.write_value(new_val)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    try:
+        _logger.info("Server starting...")
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        _logger.info("Server stopped...")
