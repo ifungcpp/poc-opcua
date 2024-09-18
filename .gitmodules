@@ -1,0 +1,3 @@
+[submodule "github/asyncua"]
+	path = github/asyncua
+	url = https://github.com/FreeOpcUa/opcua-asyncio.git
