@@ -3,7 +3,6 @@ import logging
 from asyncua import Server, ua
 from asyncua.crypto.permission_rules import SimpleRoleRuleset
 from asyncua.server.user_managers import CertificateUserManager
-from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 _logger = logging.getLogger('myserver')
@@ -22,14 +21,9 @@ async def main():
 
     # Set security policy
     server.set_security_policy([
-        # SecurityPolicyBasic256Sha256,
         ua.SecurityPolicyType.NoSecurity,
         ua.SecurityPolicyType.Basic128Rsa15_Sign,
         ua.SecurityPolicyType.Basic128Rsa15_SignAndEncrypt,
-        # ua.SecurityPolicyType.Basic256_Sign,
-        # ua.SecurityPolicyType.Basic256_SignAndEncrypt,
-        # ua.SecurityPolicyType.Basic256Sha256_Sign,
-        # ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt,
         ], permission_ruleset=SimpleRoleRuleset())
 
     # Setup user manager

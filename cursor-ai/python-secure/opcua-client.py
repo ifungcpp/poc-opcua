@@ -1,7 +1,6 @@
 import asyncio
 import logging
 from asyncua import Client, ua
-from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logging.getLogger('asyncua').setLevel(logging.WARNING)
@@ -9,6 +8,7 @@ _logger = logging.getLogger('myclient')
 
 async def main():
     url = "opc.tcp://localhost:4840/freeopcua/server/"
+    is_write_value = False
     
     # Create client and set security
     _logger.info("Creating client")
@@ -30,7 +30,7 @@ async def main():
             value = await var.read_value()
             _logger.info(f"MyVariable value: {value}")
 
-            if False:
+            if is_write_value:
                 # Write a new value to MyVariable
                 new_value = 42.0
                 await var.write_value(new_value)
