@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <open62541/client_config_default.h>
 #include <open62541/client_highlevel.h>
 #include <open62541/plugin/log_stdout.h>
@@ -17,7 +18,7 @@ int main(void) {
     UA_Variant value; 
     UA_Variant_init(&value);
 
-    const UA_NodeId nodeId = UA_NS0ID(SERVER_SERVERSTATUS_CURRENTTIME);
+    const UA_NodeId nodeId = UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_SERVERSTATUS_CURRENTTIME);
     retval = UA_Client_readValueAttribute(client, nodeId, &value);
 
     if(retval == UA_STATUSCODE_GOOD &&
