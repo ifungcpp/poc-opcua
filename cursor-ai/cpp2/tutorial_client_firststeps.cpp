@@ -11,7 +11,27 @@
 
 #include <open62541/client_config_default.h>
 #include <open62541/client_highlevel.h>
+#include <open62541/client_subscriptions.h>
 #include <open62541/plugin/log_stdout.h>
+
+static void
+handler_currentTimeChanged(UA_Client *client, UA_UInt32 subId, void *subContext,
+                           UA_UInt32 monId, void *monContext, UA_DataValue *value) {
+    UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "currentTime has changed!");
+    if(UA_Variant_hasScalarType(&value->value, &UA_TYPES[UA_TYPES_DATETIME])) {
+        UA_DateTime raw_date = *(UA_DateTime *) value->value.data;
+        UA_DateTimeStruct dts = UA_DateTime_toStruct(raw_date);
+        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
+                    "date is: %02u-%02u-%04u %02u:%02u:%02u.%03u",
+                    dts.day, dts.month, dts.year, dts.hour, dts.min, dts.sec, dts.milliSec);
+    }
+}
+
+static void
+deleteSubscriptionCallback(UA_Client *client, UA_UInt32 subscriptionId, void *subscriptionContext) {
+    UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
+                "Subscription Id %u was deleted", subscriptionId);
+}
 
 class OPCUA_Client {
 public:
@@ -67,6 +87,37 @@ public:
         return retval == UA_STATUSCODE_GOOD;
     }
 
+    UA_StatusCode subscribeServerTime() {
+        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "A session with the server is activated");
+        /* A new session was created. We need to create the subscription. */
+        /* Create a subscription */
+        UA_CreateSubscriptionRequest request = UA_CreateSubscriptionRequest_default();
+        UA_CreateSubscriptionResponse response =
+            UA_Client_Subscriptions_create(m_client, request, NULL, NULL, deleteSubscriptionCallback);
+        if(response.responseHeader.serviceResult == UA_STATUSCODE_GOOD)
+            UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
+                        "Create subscription succeeded, id %u",
+                        response.subscriptionId);
+        else
+            return response.responseHeader.serviceResult;
+
+        /* Add a MonitoredItem */
+        UA_NodeId currentTimeNode =
+            UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_SERVERSTATUS_CURRENTTIME);
+        UA_MonitoredItemCreateRequest monRequest =
+            UA_MonitoredItemCreateRequest_default(currentTimeNode);
+
+        UA_MonitoredItemCreateResult monResponse =
+            UA_Client_MonitoredItems_createDataChange(m_client, response.subscriptionId,
+                                                        UA_TIMESTAMPSTORETURN_BOTH, monRequest,
+                                                        NULL, handler_currentTimeChanged, NULL);
+        if(monResponse.statusCode == UA_STATUSCODE_GOOD)
+            UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND,
+                        "Monitoring UA_NS0ID_SERVER_SERVERSTATUS_CURRENTTIME', id %u",
+                        monResponse.monitoredItemId);
+        return monResponse.statusCode;
+    }
+
     static const char * UA_SessionState_name(UA_SessionState ss) {
         switch (ss) {
         case UA_SESSIONSTATE_CLOSED: return "UA_SESSIONSTATE_CLOSED";
@@ -86,6 +137,8 @@ private:
 int main() 
 {
     OPCUA_Client client;
+    bool subOkay = false;
+
     while (true)
     {
         UA_StatusCode retval = UA_STATUSCODE_GOOD;
@@ -93,6 +146,11 @@ int main()
         if (client.getState() != UA_SESSIONSTATE_ACTIVATED)
         {
             retval = client.connect("opc.tcp://172.22.0.1:48400");
+            if (retval == UA_STATUSCODE_GOOD) 
+            {
+                client.subscribeServerTime();
+                subOkay = true;
+            }
         }
         if (retval != UA_STATUSCODE_GOOD) 
         {
@@ -103,16 +161,18 @@ int main()
         }
         else
         {
-            if (client.readServerTime())
+            if (subOkay || client.readServerTime())
             {
                 client.runIterate(1000);
             }
             else
             {
+                // sudo iptables -A INPUT -p tcp --dport 48400 -j DROP
                 // sudo iptables -A OUTPUT -p tcp --dport 48400 -j DROP
                 // sudo iptables -D OUTPUT -p tcp --dport 48400 -j DROP
                 client.disconnect();
             }
+            sleep_ms(1000);
         }
     }
     return 0;
