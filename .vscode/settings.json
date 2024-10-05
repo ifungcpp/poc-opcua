@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "client_config_default.h": "c",
-        "client_highlevel.h": "c"
-    }
+        "client_highlevel.h": "c",
+        "*.in": "cpp"
+    },
+    "sonarlint.pathToCompileCommands": "${workspaceFolder}\\github\\open62541\\build\\compile_commands.json"
 }
